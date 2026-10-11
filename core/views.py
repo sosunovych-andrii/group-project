@@ -1,9 +1,8 @@
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
-from .models import Forum, Comment, Grade
-from .forms import ForumForm, CommentForm, GradeForm
-
+from .models import Forum, Comment
+from .forms import ForumForm, CommentForm
 
 # Create your views here.
 class ForumListView(ListView):
@@ -27,14 +26,12 @@ class ForumCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
 class ForumUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Forum
     form_class = ForumForm
-    context_object_name = 'forum'
 
     def test_func(self):
         return self.request.user.is_staff
 
 class ForumDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Forum
-    context_object_name = 'forum'
 
     def test_func(self):
         return self.request.user.is_staff
@@ -52,36 +49,3 @@ class CommentCreateView(CreateView):
     def form_valid(self, form):
         form.instance.creator = self.request.user
         return super().form_valid(form)
-
-
-class GradeListView(ListView):
-    model = Grade
-    context_object_name = 'grades'
-
-
-class GradeCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
-    model = Grade
-    form_class = GradeForm
-    context_object_name = 'grade'
-
-    def test_func(self):
-        return self.request.user.is_staff
-
-    def form_valid(self, form):
-        form.instance.teacher = self.request.user
-
-
-class GradeUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-    model = Grade
-    form_class = GradeForm
-    context_object_name = 'grade'
-
-    def test_func(self):
-        return self.request.user.is_staff
-
-class GradeDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = Grade
-    context_object_name = 'grade'
-
-    def test_func(self):
-        return self.request.user.is_staff
