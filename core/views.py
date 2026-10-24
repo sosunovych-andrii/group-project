@@ -1,8 +1,8 @@
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
-from .models import Forum, Comment, Grade, Event, Announcement
-from .forms import ForumForm, CommentForm, GradeForm, EventForm, AnnouncementForm
+from .models import Forum, Comment, Grade, Event, Announcement, Survey, SurveyPage, SurveyAnswer
+from .forms import ForumForm, CommentForm, GradeForm, EventForm, AnnouncementForm, SurveyForm, SurveyPageForm, SurveyAnswerForm
 
 
 # Create your views here.
@@ -155,3 +155,106 @@ class AnnouncementUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView
     def form_valid(self, form):
         form.instance.creator = self.request.user
         return super().form_valid(form)
+
+
+class SurveyListView(ListView):
+    model = Survey
+    context_object_name = 'surveys'
+
+
+class SurveyCreateView(LoginRequiredMixin, CreateView):
+    model = Survey
+    form_class = SurveyForm
+    context_object_name = 'survey'
+
+    def form_valid(self, form):
+        form.instance.creator = self.request.user
+        return super().form_valid(form)
+
+
+class SurveyUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Survey
+    form_class = SurveyForm
+    context_object_name = 'survey'
+
+    def test_func(self):
+        return self.get_object().creator == self.request.user
+
+
+class SurveyDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Survey
+    context_object_name = 'survey'
+
+    def test_func(self):
+        return self.get_object().creator == self.request.user
+
+
+class SurveyDetailView(DetailView):
+    model = Survey
+    context_object_name = 'survey'
+
+
+class SurveyPageCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    model = Survey
+    form_class = SurveyForm
+    context_object_name = 'page'
+
+    def get_survey(self):
+        return Survey.objects.get(pk = self.kwargs['survey_pk'])
+
+    def test_func(self):
+        return self.get_survey().creator == self.request.user
+
+    def form_valid(self, form):
+        form.instance.creator = self.get_survey()
+        return super().form_valid(form)
+
+
+class SurveyPageUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Survey
+    form_class = SurveyForm
+    context_object_name = 'page'
+
+    def test_func(self):
+        return self.get_object().survey.creator == self.request.user
+
+
+class SurveyPageDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Survey
+    context_object_name = 'page'
+
+    def test_func(self):
+        return self.get_object().survey.creator == self.request.user
+
+
+class SurveyAnswerCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    model = SurveyAnswer
+    form_class = SurveyAnswerForm
+    context_object_name = 'answer'
+
+    def get_page(self):
+        return SurveyPage.objects.get(pk = self.kwargs['answer_pk'])
+
+    def test_func(self):
+        return self.get_page().survey.creator == self.request.user
+
+    def form_valid(self, form):
+        form.instance.page = self.get_page()
+        return super().form_valid(form)
+
+
+class SurveyAnswerUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = SurveyAnswer
+    form_class = SurveyAnswerForm
+    context_object_name = 'answer'
+
+    def test_func(self):
+        return self.get_object().page.survey.creator == self.request.user
+
+
+class SurveyAnswerDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = SurveyAnswer
+    context_object_name = 'answer'
+
+    def test_func(self):
+        return self.get_object().page.survey.creator == self.request.user
