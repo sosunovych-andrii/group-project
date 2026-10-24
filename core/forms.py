@@ -1,5 +1,5 @@
 from django import forms
-from .models import Forum, Comment, Grade, Announcement, Event
+from .models import Forum, Comment, Grade, Announcement, Event, Survey, SurveyAnswer, SurveyPage
 
 
 class ForumForm(forms.ModelForm):
@@ -29,3 +29,21 @@ class EventForm(forms.ModelForm):
     class Meta:
         model = Event
         fields = ('title', 'description', 'start_date', 'end_date')
+
+
+class SurveyForm(forms.ModelForm):
+    class Meta:
+        model = Survey
+        fields = ('title')
+
+
+class SurveyPageForm(forms.ModelForm):
+    class Meta:
+        model = SurveyPage
+        fields = ('question')
+
+
+class SurveyAnswerForm(forms.ModelForm):
+    class Meta:
+        model = SurveyAnswer
+        fields = ('answer')
