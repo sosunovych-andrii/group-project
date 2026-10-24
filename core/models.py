@@ -72,3 +72,37 @@ class Announcement(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Survey(models.Model):
+    title = models.CharField(max_length = 100)
+    completed = models.BooleanField(default = False)
+
+    creator = models.ForeignKey(
+        User, on_delete = models.CASCADE, related_name = "surveys"
+    )
+
+    def __str__(self):
+        return self.title
+
+
+class SurveyPage(models.Model):
+    question = models.CharField(max_length = 100)
+
+    survey = models.ForeignKey(
+        Survey, on_delete = models.CASCADE, related_name = 'surveys'
+    )
+
+    def __str__(self):
+        return self.question
+
+
+class SurveyAnswer(models.Model):
+    answer = models.CharField(max_length = 100)
+
+    page = models.ForeignKey(
+        SurveyPage, on_delete = models.CASCADE, related_name = 'answers'
+    )
+
+    def __str__(self):
+        return self.answer
