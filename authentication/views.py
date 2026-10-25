@@ -1,8 +1,11 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import redirect, render
 from .forms import RegisterForm
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
 
+
+@login_required(login_url="login")
+def profile(request):
+    return render(request, "profile.html", {"user": request.user})
 
 
 def register_view(request):
@@ -16,15 +19,6 @@ def register_view(request):
 
     return render(
         request,
-        "account/register.html",
-        {"form":form}
+        "accounts/register.html",
+        {"form": form},
     )
-@login_required
-def my_view(request):
-    if not request.user.is_authenticated:
-        return redirect(f"{settings.LOGIN_URL}?next={request.path}")
-
-
-
-
-# Create your views here.
