@@ -6,12 +6,11 @@ from .models import (
     Announcement, Survey, SurveyPage, SurveyAnswer
 )
 
-# --- 1. ФОРУМИ ТА КОМЕНТАРІ ---
 
 class CommentInline(admin.TabularInline):
     """Дозволяє бачити та редагувати коментарі прямо всередині сторінки Форуму"""
     model = Comment
-    extra = 1  # Кількість порожніх рядків для нових коментарів
+    extra = 1
 
 
 @admin.register(Forum)
@@ -19,8 +18,8 @@ class ForumAdmin(admin.ModelAdmin):
     list_display = ('title', 'creator', 'post_date', 'comments_count')
     list_filter = ('post_date', 'creator')
     search_fields = ('title', 'forum', 'creator__username')
-    date_hierarchy = 'post_date'  # Зручна навігація за календарем вгорі
-    inlines = [CommentInline]  # Інтегруємо коментарі у форум
+    date_hierarchy = 'post_date'
+    inlines = [CommentInline]
 
     def comments_count(self, obj):
         """Рахує кількість коментарів до теми"""
@@ -40,18 +39,14 @@ class CommentAdmin(admin.ModelAdmin):
     short_text.short_description = 'Текст коментаря'
 
 
-# --- 2. ОЦІНКИ (ЖУРНАЛ) ---
-
 @admin.register(Grade)
 class GradeAdmin(admin.ModelAdmin):
     list_display = ('student', 'subject', 'grade', 'teacher', 'date')
     list_filter = ('subject', 'grade', 'date', 'teacher')
     search_fields = ('student__username', 'teacher__username', 'subject')
-    list_editable = ('grade',)  # Можна швидко виставити чи змінити оцінку зі списку
-    list_per_page = 20  # Пагінація: по 20 оцінок на сторінку
+    list_editable = ('grade',)
+    list_per_page = 20 
 
-
-# --- 3. ПОДІЇ ТА ОГОЛОШЕННЯ ---
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
@@ -67,8 +62,6 @@ class AnnouncementAdmin(admin.ModelAdmin):
     search_fields = ('title', 'content', 'creator__username')
 
 
-# --- 4. ОПИТУВАННЯ (СКЛАДНА СТРУКТУРА) ---
-
 class SurveyAnswerInline(admin.TabularInline):
     """Показує відповіді всередині Питання"""
     model = SurveyAnswer
@@ -80,7 +73,7 @@ class SurveyPageAdmin(admin.ModelAdmin):
     list_display = ('question', 'survey')
     list_filter = ('survey',)
     search_fields = ('question',)
-    inlines = [SurveyAnswerInline]  # Відповіді редагуються прямо в питанні
+    inlines = [SurveyAnswerInline] 
 
 
 class SurveyPageInline(admin.StackedInline):
@@ -94,5 +87,5 @@ class SurveyAdmin(admin.ModelAdmin):
     list_display = ('title', 'creator', 'completed')
     list_filter = ('completed', 'creator')
     search_fields = ('title', 'creator__username')
-    list_editable = ('completed',)  # Можна закривати/відкривати опитування в 1 клік
-    inlines = [SurveyPageInline]  # Питання редагуються прямо в опитуванні
+    list_editable = ('completed',) 
+    inlines = [SurveyPageInline]
