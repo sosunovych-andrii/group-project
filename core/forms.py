@@ -1,5 +1,5 @@
 from django import forms
-from .models import Forum, Comment, Grade, Announcement, Event, Survey, SurveyAnswer, SurveyPage
+from .models import Forum, Comment, Grade, Announcement, Event, Survey, SurveyAnswer, SurveyPage, Poll, PollOption
 
 
 class ForumForm(forms.ModelForm):
@@ -30,6 +30,17 @@ class EventForm(forms.ModelForm):
         model = Event
         fields = ('title', 'description', 'start_date', 'end_date')
 
+    def clean(self):
+        cleaned_data = super().clean()
+
+        start_date = cleaned_data.get('start_date')
+        end_date = cleaned_data.get('end_date')
+
+        if start_date and end_date and end_date <= start_date:
+            raise forms.ValidationError('End date cannot be before start date')
+
+        return cleaned_data
+
 
 class SurveyForm(forms.ModelForm):
     class Meta:
@@ -40,7 +51,7 @@ class SurveyForm(forms.ModelForm):
 class SurveyPageForm(forms.ModelForm):
     class Meta:
         model = SurveyPage
-        fields = ('question',)
+        fields = ('question', 'order')
 
 
 class SurveyAnswerForm(forms.ModelForm):
