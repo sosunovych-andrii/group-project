@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 # Create your models here.
@@ -31,7 +32,10 @@ class Comment(models.Model):
         return self.comment
 
 class Grade(models.Model):
-    grade = models.PositiveIntegerField()
+    grade = models.PositiveIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(12)],
+    )
+
     subject = models.CharField(max_length = 100)
     date = models.DateTimeField(auto_now_add = True)
 
@@ -76,7 +80,6 @@ class Announcement(models.Model):
 
 class Survey(models.Model):
     title = models.CharField(max_length = 100)
-    completed = models.BooleanField(default = False)
 
     creator = models.ForeignKey(
         User, on_delete = models.CASCADE, related_name = "surveys"
@@ -88,10 +91,14 @@ class Survey(models.Model):
 
 class SurveyPage(models.Model):
     question = models.CharField(max_length = 100)
+    order = models.PositiveIntegerField(default = 0)
 
     survey = models.ForeignKey(
-        Survey, on_delete = models.CASCADE, related_name = 'surveys'
+        Survey, on_delete = models.CASCADE, related_name = 'pages'
     )
+
+    class Meta:
+        ordering = ['order']
 
     def __str__(self):
         return self.question
@@ -106,3 +113,91 @@ class SurveyAnswer(models.Model):
 
     def __str__(self):
         return self.answer
+
+
+class SurveySubmission(models.Model):
+    submitted_date = models.DateTimeField(auto_now_add = True)
+
+    survey = models.ForeignKey(
+        Survey, on_delete = models.CASCADE, related_name = 'submissions'
+    )
+
+    user = models.ForeignKey(
+        User, on_delete = models.CASCADE, related_name = 'survey_submissions'
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields = ['survey', 'user'],
+                name = 'unique_survey_submission'
+            )
+        ]
+
+
+class SurveyResponse(models.Model):
+    submission = models.ForeignKey(
+        SurveySubmission, on_delete = models.CASCADE, related_name = 'responses'
+    )
+
+    page = models.ForeignKey(
+        SurveyPage, on_delete = models.CASCADE, related_name = 'responses'
+    )
+
+    answer = models.ForeignKey(
+        SurveyAnswer, on_delete = models.CASCADE, related_name = 'responses'
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields = ['submission', 'page'],
+                name = 'unique_submission_page'
+            )
+        ]
+
+
+class Poll(models.Model):
+    title = models.CharField(max_length = 100)
+
+    creator = models.ForeignKey(
+        User, on_delete = models.CASCADE, related_name = "polls"
+    )
+
+    def __str__(self):
+        return self.title
+
+
+class PollOption(models.Model):
+    option = models.CharField(max_length = 100)
+
+    poll = models.ForeignKey(
+        Poll, on_delete = models.CASCADE, related_name = 'options'
+    )
+
+    def __str__(self):
+        return self.option
+
+
+class Vote(models.Model):
+    created_date = models.DateTimeField(auto_now_add=True)
+
+    user = models.ForeignKey(
+        User, on_delete = models.CASCADE, related_name = 'votes'
+    )
+
+    poll = models.ForeignKey(
+        Poll, on_delete = models.CASCADE, related_name = 'votes'
+    )
+
+    option = models.ForeignKey(
+        PollOption, on_delete = models.CASCADE, related_name = 'votes'
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields = ['user', 'poll'],
+                name = 'unique_user_poll_vote'
+            )
+        ]
