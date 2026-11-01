@@ -11,7 +11,7 @@ class ForumForm(forms.ModelForm):
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
-        fields = ('comment')
+        fields = ('comment',)
 
 class GradeForm(forms.ModelForm):
     class Meta:
@@ -34,16 +34,16 @@ class EventForm(forms.ModelForm):
 class SurveyForm(forms.ModelForm):
     class Meta:
         model = Survey
-        fields = ('title')
+        fields = ('title',)
 
 
 class SurveyPageForm(forms.ModelForm):
     class Meta:
         model = SurveyPage
-        fields = ('question')
+        fields = ('question',)
 
 
 class SurveyAnswerForm(forms.ModelForm):
     class Meta:
         model = SurveyAnswer
-        fields = ('answer')
+        fields = ('answer',)
