@@ -1,7 +1,7 @@
 from turtledemo.chaos import line
 
 from django import forms
-from .models import Forum, Comment, Grade, Announcement, Event, Survey, SurveyAnswer, SurveyPage, Poll, PollOption, Gallery, Material, MaterialAttachment, Portfolio, PortfolioAttachment, PortfolioItem
+from .models import Forum, Comment, Grade, Announcement, Event, Survey, SurveyAnswer, SurveyPage, Poll, PollOption, GalleryItem, Material, MaterialAttachment, Portfolio, PortfolioAttachment, PortfolioItem
 
 
 class ForumForm(forms.ModelForm):
@@ -112,10 +112,10 @@ class VoteForm(forms.Form):
         self.fields['option'].queryset = poll.options.all()
 
 
-class GalleryForm(forms.ModelForm):
+class GalleryItemForm(forms.ModelForm):
     class Meta:
-        model = Gallery
-        fields = ('title', "description")
+        model = GalleryItem
+        fields = ('title', "image")
 
 
 class MaterialForm(forms.ModelForm):
@@ -130,7 +130,7 @@ class MaterialAttachmentForm(forms.ModelForm):
         fields = ('attachment_type', 'file', 'image', 'link')
 
     def clean(self):
-        cleaned_data = super(self).clean()
+        cleaned_data = super().clean()
         attachment_type = cleaned_data.get('attachment_type')
 
         file = cleaned_data.get('file')
@@ -165,7 +165,7 @@ class PortfolioAttachmentForm(forms.ModelForm):
         fields = ('attachment_type', 'file', 'image', 'link')
 
     def clean(self):
-        cleaned_data = super(self).clean()
+        cleaned_data = super().clean()
         attachment_type = cleaned_data.get('attachment_type')
 
         file = cleaned_data.get('file')
