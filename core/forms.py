@@ -1,5 +1,7 @@
+from turtledemo.chaos import line
+
 from django import forms
-from .models import Forum, Comment, Grade, Announcement, Event, Survey, SurveyAnswer, SurveyPage, Poll, PollOption
+from .models import Forum, Comment, Grade, Announcement, Event, Survey, SurveyAnswer, SurveyPage, Poll, PollOption, GalleryItem, Material, MaterialAttachment, Portfolio, PortfolioAttachment, PortfolioItem
 
 
 class ForumForm(forms.ModelForm):
@@ -108,3 +110,73 @@ class VoteForm(forms.Form):
     def __init__(self, *args, poll, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['option'].queryset = poll.options.all()
+
+
+class GalleryItemForm(forms.ModelForm):
+    class Meta:
+        model = GalleryItem
+        fields = ('title', "image")
+
+
+class MaterialForm(forms.ModelForm):
+    class Meta:
+        model = Material
+        fields = ('title', 'description')
+
+
+class MaterialAttachmentForm(forms.ModelForm):
+    class Meta:
+        model = MaterialAttachment
+        fields = ('attachment_type', 'file', 'image', 'link')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        attachment_type = cleaned_data.get('attachment_type')
+
+        file = cleaned_data.get('file')
+        image = cleaned_data.get('image')
+        link = cleaned_data.get('link')
+
+        if attachment_type == 'file' and not file:
+            self.add_error('file', 'Please upload a file')
+        elif attachment_type == 'image' and not image:
+            self.add_error('image', 'Please upload an image')
+        elif attachment_type in ('link', 'youtube') and not link:
+            self.add_error('link', 'Please upload a link')
+
+        return cleaned_data
+
+
+class PortfolioForm(forms.ModelForm):
+    class Meta:
+        model = Portfolio
+        fields = ('title', 'description')
+
+
+class PortfolioItemForm(forms.ModelForm):
+    class Meta:
+        model = PortfolioItem
+        fields = ('title', 'description')
+
+
+class PortfolioAttachmentForm(forms.ModelForm):
+    class Meta:
+        model = PortfolioAttachment
+        fields = ('attachment_type', 'file', 'image', 'link')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        attachment_type = cleaned_data.get('attachment_type')
+
+        file = cleaned_data.get('file')
+        image = cleaned_data.get('image')
+        link = cleaned_data.get('link')
+
+        if attachment_type == 'file' and not file:
+            self.add_error('file', 'Please upload a file')
+        elif attachment_type == 'image' and not image:
+            self.add_error('image', 'Please upload an image')
+        elif attachment_type in ('link', 'youtube') and not link:
+            self.add_error('link', 'Please upload a link')
+
+        return cleaned_data
