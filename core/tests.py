@@ -18,6 +18,8 @@ from .forms import (
     EventForm, SurveyForm, SurveyPageForm, SurveyAnswerForm
 )
 
+#Models
+
 class ModelsComprehensiveTestCase(TestCase):
 
     def setUp(self):
@@ -108,6 +110,8 @@ class ModelsComprehensiveTestCase(TestCase):
         self.assertEqual(str(answer), answer_text)
         self.assertEqual(page.answers.count(), 1)
 
+#Views
+
 class EducationalViewsRequestFactoryTestCase(TestCase):
 
     def setUp(self):
@@ -197,6 +201,8 @@ class EducationalViewsRequestFactoryTestCase(TestCase):
         response = view(request, pk=self.survey.pk)
         
         self.assertEqual(response.status_code, 200)
+
+#Forms
 
 class EducationalPlatformFormsTestCase(TestCase):
 
