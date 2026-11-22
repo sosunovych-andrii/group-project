@@ -8,7 +8,6 @@ from .models import (
 
 
 class CommentInline(admin.TabularInline):
-    """Дозволяє бачити та редагувати коментарі прямо всередині сторінки Форуму"""
     model = Comment
     extra = 1
 
@@ -22,7 +21,6 @@ class ForumAdmin(admin.ModelAdmin):
     inlines = [CommentInline]
 
     def comments_count(self, obj):
-        """Рахує кількість коментарів до теми"""
         return obj.comments.count()
     comments_count.short_description = 'Кількість коментарів'
 
@@ -34,7 +32,6 @@ class CommentAdmin(admin.ModelAdmin):
     search_fields = ('comment', 'creator__username', 'forum__title')
 
     def short_text(self, obj):
-        """Обрізає довгий текст коментаря в загальному списку"""
         return obj.comment[:50] + '...' if len(obj.comment) > 50 else obj.comment
     short_text.short_description = 'Текст коментаря'
 
@@ -63,7 +60,6 @@ class AnnouncementAdmin(admin.ModelAdmin):
 
 
 class SurveyAnswerInline(admin.TabularInline):
-    """Показує відповіді всередині Питання"""
     model = SurveyAnswer
     extra = 3
 
@@ -77,7 +73,6 @@ class SurveyPageAdmin(admin.ModelAdmin):
 
 
 class SurveyPageInline(admin.StackedInline):
-    """Показує питання всередині Опитування (картками)"""
     model = SurveyPage
     extra = 1
 
