@@ -201,3 +201,97 @@ class Vote(models.Model):
                 name = 'unique_user_poll_vote'
             )
         ]
+
+
+class GalleryItem(models.Model):
+    title = models.CharField(max_length = 100, blank = True)
+    image = models.ImageField(upload_to = 'gallery/')
+    uploaded_at = models.DateTimeField(auto_now_add = True)
+
+    uploader = models.ForeignKey(
+        User, on_delete = models.CASCADE, related_name = 'gallery_images'
+    )
+
+    def __str__(self):
+        return self.title
+
+
+class Material(models.Model):
+    title = models.CharField(max_length = 100)
+    description = models.TextField(blank = True)
+    created_at = models.DateTimeField(auto_now_add = True)
+
+    creator = models.ForeignKey(
+        User, on_delete = models.CASCADE, related_name = 'materials'
+    )
+
+    def __str__(self):
+        return self.title
+
+
+class MaterialAttachment(models.Model):
+    class AttachmentChoices(models.TextChoices):
+        FILE = 'file', 'File'
+        IMAGE = 'image', 'Image'
+        LINK = 'link', 'Link'
+        YOUTUBE = 'youtube', 'YouTube'
+
+    attachment_type = models.CharField(max_length = 10, choices = AttachmentChoices.choices)
+    file = models.FileField(upload_to = 'materials/files/', blank = True, null = True)
+    image = models.ImageField(upload_to = 'materials/images/', blank = True, null = True)
+    link = models.URLField(blank = True)
+    created_at = models.DateTimeField(auto_now_add = True)
+
+    material = models.ForeignKey(
+        Material, on_delete = models.CASCADE, related_name = 'attachments'
+    )
+
+    def __str__(self):
+        return f'{self.material} - {self.attachment_type}'
+
+
+class Portfolio(models.Model):
+    title = models.CharField(max_length = 100)
+    description = models.TextField(blank = True)
+    created_at = models.DateTimeField(auto_now_add = True)
+    updated_at = models.DateTimeField(auto_now = True)
+
+    creator = models.OneToOneField(
+        User, on_delete = models.CASCADE, related_name = 'portfolio'
+    )
+
+    def __str__(self):
+        return self.title
+
+
+class PortfolioItem(models.Model):
+    title = models.CharField(max_length = 100)
+    description = models.TextField(blank = True)
+    created_at = models.DateTimeField(auto_now_add = True)
+
+    portfolio = models.ForeignKey(
+        Portfolio, on_delete = models.CASCADE, related_name = 'items'
+    )
+
+    def __str__(self):
+        return self.title
+
+
+class PortfolioAttachment(models.Model):
+    class AttachmentChoices(models.TextChoices):
+        FILE = 'file', 'File'
+        IMAGE = 'image', 'Image'
+        LINK = 'link', 'Link'
+
+    attachment_type = models.CharField(max_length = 10, choices = AttachmentChoices.choices)
+    file = models.FileField(upload_to = 'portfolio/files/', blank = True, null = True)
+    image = models.ImageField(upload_to = 'portfolio/images/', blank = True, null = True)
+    link = models.URLField(blank = True)
+    created_at = models.DateTimeField(auto_now_add = True)
+
+    portfolio_item = models.ForeignKey(
+        PortfolioItem, on_delete = models.CASCADE, related_name = 'attachments'
+    )
+
+    def __str__(self):
+        return f'{self.portfolio_item} - {self.attachment_type}'

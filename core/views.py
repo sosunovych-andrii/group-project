@@ -1,3 +1,5 @@
+from optparse import Option
+
 from django.core.exceptions import PermissionDenied
 from django.db import transaction, IntegrityError
 from django.shortcuts import get_object_or_404
@@ -6,8 +8,10 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView, D
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 
-from .models import Forum, Comment, Grade, Event, Announcement, Survey, SurveyPage, SurveyAnswer, Poll, PollOption, SurveySubmission, SurveyResponse, Vote
-from .forms import ForumForm, CommentForm, GradeForm, EventForm, AnnouncementForm, SurveyForm, SurveyPageForm, SurveyAnswerForm, PollForm, PollOptionForm, SurveySubmissionForm, VoteForm
+from .models import Forum, Comment, Grade, Event, Announcement, Survey, SurveyPage, SurveyAnswer, Poll, PollOption, SurveySubmission, SurveyResponse, Vote, GalleryItem, Material, MaterialAttachment, Portfolio, PortfolioAttachment, PortfolioItem
+from .forms import ForumForm, CommentForm, GradeForm, EventForm, AnnouncementForm, SurveyForm, SurveyPageForm, \
+    SurveyAnswerForm, PollForm, PollOptionForm, SurveySubmissionForm, VoteForm, GalleryItemForm, MaterialForm, \
+    MaterialAttachmentForm, Portfolio, PortfolioAttachmentForm, PortfolioItemForm, PortfolioForm
 
 
 # Create your views here.
@@ -552,3 +556,264 @@ class PollResultsView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         context['results'] = results
 
         return context
+
+
+class GalleryItemListView(ListView):
+    model = GalleryItem
+    context_object_name = 'gallery_items'
+
+    def get_queryset(self):
+        return GalleryItem.objects.filter(uploader_id = self.kwargs['user_pk'])
+
+
+class GalleryItemDetailView(DetailView):
+    model = GalleryItem
+    context_object_name = 'gallery_item'
+
+
+class GalleryItemCreateView(LoginRequiredMixin, CreateView):
+    model = GalleryItem
+    context_object_name = 'gallery_item'
+    form_class = GalleryItemForm
+    success_url = reverse_lazy('')
+
+    def form_valid(self, form):
+        form.instance.uploader = self.request.user
+        return super().form_valid(form)
+
+
+class GalleryItemUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = GalleryItem
+    context_object_name = 'gallery_item'
+    form_class = GalleryItemForm
+    success_url = reverse_lazy('')
+
+    def test_func(self):
+        return self.get_object().uploader == self.request.user
+
+
+class GalleryItemDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = GalleryItem
+    context_object_name = 'gallery_item'
+    success_url = reverse_lazy('')
+
+    def test_func(self):
+        return self.get_object().uploader == self.request.user
+
+
+class MaterialListView(LoginRequiredMixin, ListView):
+    model = Material
+    context_object_name = 'materials'
+
+    def get_queryset(self):
+        return Material.objects.filter(creator_id = self.kwargs['user_pk'])
+
+
+class MaterialDetailView(DetailView):
+    model = Material
+    context_object_name = 'material'
+
+
+class MaterialCreateView(LoginRequiredMixin, CreateView):
+    model = Material
+    context_object_name = 'material'
+    form_class = MaterialForm
+    success_url = reverse_lazy('')
+
+    def get_material(self):
+        return get_object_or_404(Material, pk = self.kwargs['material_pk'])
+
+    def form_valid(self, form):
+        form.instance.material = self.get_material()
+        return super().form_valid(form)
+
+
+class MaterialUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Material
+    context_object_name = 'material'
+    form_class = MaterialForm
+    success_url = reverse_lazy('')
+
+    def test_func(self):
+        return self.get_object().creator == self.request.user
+
+
+class MaterialDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Material
+    context_object_name = 'material'
+    success_url = reverse_lazy('')
+
+    def test_func(self):
+        return self.get_object().creator == self.request.user
+
+
+class MaterialAttachmentListView(LoginRequiredMixin, ListView):
+    model = MaterialAttachment
+    context_object_name = 'material_attachments'
+
+    def get_queryset(self):
+        return MaterialAttachment.objects.filter(material_id = self.kwargs['material_pk'])
+
+
+class MaterialAttachmentDetailView(DetailView):
+    model = MaterialAttachment
+    context_object_name = 'material_attachment'
+
+
+class MaterialAttachmentCreateView(LoginRequiredMixin, CreateView):
+    model = MaterialAttachment
+    context_object_name = 'material_attachment'
+    form_class = MaterialAttachmentForm
+    success_url = reverse_lazy('')
+
+    def get_material(self):
+        return get_object_or_404(Material, pk = self.kwargs['material_pk'], creator = self.request.user)
+
+    def form_valid(self, form):
+        form.instance.material = self.get_material()
+        return super().form_valid(form)
+
+class MaterialAttachmentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = MaterialAttachment
+    context_object_name = 'material_attachment'
+    form_class = MaterialAttachmentForm
+    success_url = reverse_lazy('')
+
+    def test_func(self):
+        return self.get_object().material.creator == self.request.user
+
+
+class MaterialAttachmentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = MaterialAttachment
+    context_object_name = 'material_attachment'
+    success_url = reverse_lazy('')
+
+    def test_func(self):
+        return self.get_object().material.creator == self.request.user
+
+
+class PortfolioDetailView(DetailView):
+    model = Portfolio
+    context_object_name = 'portfolio'
+
+
+class PortfolioCreateView(LoginRequiredMixin, CreateView):
+    model = Portfolio
+    context_object_name = 'portfolio'
+    form_class = PortfolioForm
+    success_url = reverse_lazy('')
+
+    def form_valid(self, form):
+        form.instance.creator = self.request.user
+        return super().form_valid(form)
+
+
+class PortfolioUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Portfolio
+    context_object_name = 'portfolio'
+    form_class = PortfolioForm
+    success_url = reverse_lazy('')
+
+    def test_func(self):
+        return self.get_object().creator == self.request.user
+
+
+class PortfolioDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Portfolio
+    context_object_name = 'portfolio'
+    success_url = reverse_lazy('')
+
+    def test_func(self):
+        return self.get_object().creator == self.request.user
+
+
+class PortfolioItemListView(LoginRequiredMixin, ListView):
+    model = PortfolioItem
+    context_object_name = 'portfolio_items'
+
+    def get_queryset(self):
+        return PortfolioItem.objects.filter(portfolio_id = self.kwargs['portfolio_pk'])
+
+
+class PortfolioItemDetailView(DetailView):
+    model = PortfolioItem
+    context_object_name = 'portfolio_item'
+
+
+class PortfolioItemCreateView(LoginRequiredMixin, CreateView):
+    model = PortfolioItem
+    context_object_name = 'portfolio_item'
+    form_class = PortfolioItemForm
+    success_url = reverse_lazy('')
+
+    def get_portfolio(self):
+        return get_object_or_404(Portfolio, pk = self.kwargs['portfolio_pk'], creator = self.request.user)
+
+    def form_valid(self, form):
+        form.instance.portfolio = self.get_portfolio()
+        return super().form_valid(form)
+
+
+class PortfolioItemUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = PortfolioItem
+    context_object_name = 'portfolio_item'
+    form_class = PortfolioItemForm
+    success_url = reverse_lazy('')
+
+    def test_func(self):
+        return self.get_object().portfolio.creator == self.request.user
+
+
+class PortfolioItemDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = PortfolioItem
+    context_object_name = 'portfolio_item'
+    success_url = reverse_lazy('')
+
+    def test_func(self):
+        return self.get_object().portfolio.creator == self.request.user
+
+
+class PortfolioAttachmentListView(ListView):
+    model = PortfolioAttachment
+    context_object_name = 'portfolio_attachments'
+
+    def get_queryset(self):
+        return PortfolioAttachment.objects.filter(portfolio_item_id = self.kwargs['portfolio_item_pk'])
+
+
+class PortfolioAttachmentDetailView(DetailView):
+    model = PortfolioAttachment
+    context_object_name = 'portfolio_attachment'
+
+
+class PortfolioAttachmentCreateView(LoginRequiredMixin, CreateView):
+    model = PortfolioAttachment
+    context_object_name = 'portfolio_attachment'
+    form_class = PortfolioAttachmentForm
+    success_url = reverse_lazy('')
+
+    def get_portfolio_item(self):
+        return get_object_or_404(PortfolioItem, pk = self.kwargs['portfolio_item_pk'], portfolio__creator = self.request.user)
+
+    def form_valid(self, form):
+        form.instance.portfolio_item = self.get_portfolio_item()
+        return super().form_valid(form)
+
+
+class PortfolioAttachmentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = PortfolioAttachment
+    context_object_name = 'portfolio_attachment'
+    form_class = PortfolioAttachmentForm
+    success_url = reverse_lazy('')
+
+    def test_func(self):
+        return self.get_object().portfolio_item.portfolio.creator == self.request.user
+
+
+class PortfolioAttachmentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = PortfolioAttachment
+    context_object_name = 'portfolio_attachment'
+    success_url = reverse_lazy('')
+
+    def test_func(self):
+        return self.get_object().portfolio_item.portfolio.creator == self.request.user

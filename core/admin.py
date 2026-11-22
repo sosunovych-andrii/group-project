@@ -21,6 +21,7 @@ class ForumAdmin(admin.ModelAdmin):
     inlines = [CommentInline]
 
     def comments_count(self, obj):
+        """Рахує кількість коментарів до теми"""
         return obj.comments.count()
     comments_count.short_description = 'Кількість коментарів'
 
@@ -79,8 +80,7 @@ class SurveyPageInline(admin.StackedInline):
 
 @admin.register(Survey)
 class SurveyAdmin(admin.ModelAdmin):
-    list_display = ('title', 'creator', 'completed')
-    list_filter = ('completed', 'creator')
+    list_display = ('title', 'creator')
+    list_filter = ('creator',)
     search_fields = ('title', 'creator__username')
-    list_editable = ('completed',) 
     inlines = [SurveyPageInline]
